@@ -36,15 +36,18 @@ jobs:
           git clone https://github.com/bkerler/oppo_decrypt.git --depth=1
           printf "Trying to Decrypt QC OFP...\n"
           python3 ./oppo_decrypt/ofp_mtk_decrypt.py "$OFP_FILE" out 2>/dev/null
-          cd out
+          mkdir super
+          mv out/*super*.img super/
+          cd super
           simg2img *super*.img super.img
+          mv super.img ../out         
           cd ..
 
       - name: Compress Decrypted Zip
         run: |
           pwd
-          zip -r9 Decrypted."${OFPNAME}".zip out/
-          pwd
+          zip -r9 Decrypted."${OFPFILE}".zip out/
+          zip -r superimages.zip super/
     
       - name: Upload Decrypted Zip
         run: |
@@ -52,10 +55,12 @@ jobs:
           ls
           wget https://sauraj.rommirrorer.workers.dev/0:/rclonesetup.sh
           bash rclonesetup.sh
-          rclone -P copy Decrypted."${OFPNAME}".zip rom:/decrypted_ofp/"${OFPNAME}"_decrypt
- 
+          rclone -P copy Decrypted_"${OFPFILE}".zip rom:/decrypted_ofp/"${OFPFILE}"_decrypt
+          rclone -P copy superimages.zip rom:/decrypted_ofp/"${OFPFILE}"_decrypt
+
       - name: Upload Decrypted Zip
         run: |
-          echo '''zip LINK: https://sauraj.rommirrorer.workers.dev/0:/decrypted_ofp/"${OFPNAME}"_decrypt
+          echo '''zip LINK: https://sauraj.rommirrorer.workers.dev/0:/decrypted_ofp/"${OFPFILE}"_decrypt'''
+          echo "Edited By Sauraj"
           
           
