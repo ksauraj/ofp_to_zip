@@ -46,7 +46,7 @@ jobs:
       - name: Compress Decrypted Zip
         run: |
           pwd
-          zip -r9 Decrypted."${OFPFILE}".zip out/
+          zip -r9 Decrypted_"${OFPFILE}".zip out/
           zip -r superimages.zip super/
     
       - name: Upload Decrypted Zip
