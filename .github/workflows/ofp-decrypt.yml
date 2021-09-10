@@ -2,9 +2,13 @@ name: OFP Decrypter by Area69Labs
 
 on:
   workflow_dispatch:
+    inputs:
+      ofp_link:
+        description: 'OFP Firmaware Link'
+        required: true
 
 env:
-  OFP_LINK: https://true-mirror-69.gitsauraj.workers.dev/0:/502387RMX2151GDPR_11_C.09_2021070809180082/RMX2151GDPR_11_C.09_2021070809180082/RMX2151GDPR_11_C.09_2021070809180082.ofp
+  OFP_LINK: ${{ github.event.inputs.ofp_link }}
 
 jobs:
   build:
