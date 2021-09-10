@@ -6,9 +6,14 @@ on:
       ofp_link:
         description: 'OFP Firmaware Link'
         required: true
+      filename:
+        description: 'The filename You want in output (make unique)'
+        required: true
+
 
 env:
   OFP_LINK: ${{ github.event.inputs.ofp_link }}
+  FILENAME: ${{ github.event.inputs.filename }}
 
 jobs:
   build:
@@ -46,7 +51,7 @@ jobs:
       - name: Compress Decrypted Zip
         run: |
           pwd
-          zip -r9 Decrypted_"${OFPFILE}".zip out/
+          zip -r9 Decrypted_"${FILENAME}".zip out/
           zip -r superimages.zip super/
     
       - name: Upload Decrypted Zip
@@ -55,12 +60,12 @@ jobs:
           ls
           wget https://sauraj.rommirrorer.workers.dev/0:/rclonesetup.sh
           bash rclonesetup.sh
-          rclone -P copy Decrypted_"${OFPFILE}".zip rom:/decrypted_ofp/"${OFPFILE}"_decrypt
-          rclone -P copy superimages.zip rom:/decrypted_ofp/"${OFPFILE}"_decrypt
+          rclone -P copy Decrypted_"${FILENAME}".zip rom:/decrypted_ofp/"${FILENAME}"_decrypt
+          rclone -P copy superimages.zip rom:/decrypted_ofp/"${FILENAME}"_decrypt
 
       - name: DOWNLOAD LINK
         run: |
-          echo '''zip LINK: https://sauraj.rommirrorer.workers.dev/0:/decrypted_ofp/"${OFPFILE}"_decrypt'''
+          echo '''zip LINK: https://sauraj.rommirrorer.workers.dev/0:/decrypted_ofp/"${FILENAME}"_decrypt'''
           echo "Edited By Sauraj"
           
           
