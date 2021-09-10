@@ -58,7 +58,7 @@ jobs:
           rclone -P copy Decrypted_"${OFPFILE}".zip rom:/decrypted_ofp/"${OFPFILE}"_decrypt
           rclone -P copy superimages.zip rom:/decrypted_ofp/"${OFPFILE}"_decrypt
 
-      - name: Upload Decrypted Zip
+      - name: DOWNLOAD LINK
         run: |
           echo '''zip LINK: https://sauraj.rommirrorer.workers.dev/0:/decrypted_ofp/"${OFPFILE}"_decrypt'''
           echo "Edited By Sauraj"
