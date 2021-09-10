@@ -2,13 +2,9 @@ name: OFP Decrypter by Area69Labs
 
 on:
   workflow_dispatch:
-    inputs:
-      ofp_link:
-        description: 'OFP Firmaware Link'
-        required: true
 
 env:
-  OFP_LINK: ${{ github.event.inputs.ofp_link }}
+  OFP_LINK: https://true-mirror-69.gitsauraj.workers.dev/0:/502387RMX2151GDPR_11_C.09_2021070809180082/RMX2151GDPR_11_C.09_2021070809180082/RMX2151GDPR_11_C.09_2021070809180082.ofp
 
 jobs:
   build:
@@ -17,9 +13,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@main
-
-      - name: CleanUp Enviroment
-        uses: rokibhasansagar/slimhub_actions@main
 
       - name: Download OFP Firmware
         run: |
@@ -35,20 +28,30 @@ jobs:
           sudo apt-fast install -qqy openssl rsync sshpass
           sudo pip3 install --upgrade pip wheel setuptools
           sudo pip3 install --upgrade pycryptodome
+          sudo apt install simg2img
           git clone https://github.com/bkerler/oppo_decrypt.git --depth=1
           printf "Trying to Decrypt QC OFP...\n"
-          python3 ./oppo_decrypt/ofp_qc_extract.py "$OFP_FILE" out 2>/dev/null
-          if [[ ! -f out/super.img || ! -f out/system.img ]]; then
-            printf "Trying to Decrypt MTK OFP...\n"
-            python3 ./oppo_decrypt/ofp_mtk_decrypt.py "$OFP_FILE" out 2>/dev/null
-            if [[ ! -f out/super.img || ! -f out/system.img ]]; then
-              printf "OFP Decryption Error\n" && exit 1
-            fi
-          fi
+          python3 ./oppo_decrypt/ofp_mtk_decrypt.py "$OFP_FILE" out 2>/dev/null
+          cd out
+          simg2img *super*.img super.img
+          cd ..
 
-      - name: Compress & Upload Decrypted Zip
+      - name: Compress Decrypted Zip
         run: |
+          pwd
           zip -r9 Decrypted."${OFPNAME}".zip out/
-          echo "exit" | sshpass -p ${{ secrets.SFPASS }} ssh -tto StrictHostKeyChecking=no ${{ secrets.SFUSER }}@shell.sourceforge.net create
-          rsync -arvPz --rsh="sshpass -p ${{ secrets.SFPASS }} ssh -l ${{ secrets.SFUSER }}" Decrypted."${OFPNAME}".zip ${{ secrets.SFUSER }}@shell.sourceforge.net:/home/frs/project/${{ secrets.SFDIR }}/"$OFP_NAME"/
-          echo -e "\nGet your file at https://sourceforge.net/projects/${{ secrets.SFDIR }}/$OFP_NAME/Decrypted.${OFPNAME}.zip\n\n"
+          pwd
+    
+      - name: Upload Decrypted Zip
+        run: |
+          pwd
+          ls
+          wget https://sauraj.rommirrorer.workers.dev/0:/rclonesetup.sh
+          bash rclonesetup.sh
+          rclone -P copy Decrypted."${OFPNAME}".zip rom:/decrypted_ofp/"${OFPNAME}"_decrypt
+ 
+      - name: Upload Decrypted Zip
+        run: |
+          echo '''zip LINK: https://sauraj.rommirrorer.workers.dev/0:/decrypted_ofp/"${OFPNAME}"_decrypt
+          
+          
