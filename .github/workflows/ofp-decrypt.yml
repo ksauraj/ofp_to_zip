@@ -41,6 +41,9 @@ jobs:
           git clone https://github.com/bkerler/oppo_decrypt.git --depth=1
           printf "Trying to Decrypt QC OFP...\n"
           python3 ./oppo_decrypt/ofp_mtk_decrypt.py "$OFP_FILE" out 2>/dev/null
+
+      - name: Combine super images
+        run: |
           mkdir super
           mv out/*super*.img super/
           cd super
