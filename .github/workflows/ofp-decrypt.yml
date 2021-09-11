@@ -98,12 +98,21 @@ jobs:
           fi         
     
       - name: Upload Decrypted Zip
+        shell: bash
         run: |
           wget https://sauraj.rommirrorer.workers.dev/0:/rclonesetup.sh
           bash rclonesetup.sh
           rclone -P copy Decrypted_"${FILENAME}".zip rom:/decrypted_ofp/"${FILENAME}"_decrypt
-          rclone -P copy superimages.zip rom:/decrypted_ofp/"${FILENAME}"_decrypt
-
+          simg=$SIMG
+          if [ $simg == YES ]
+          then
+              rclone -P copy superimages.zip rom:/decrypted_ofp/"${FILENAME}"_decrypt
+              
+          elif [ $simg == NO ]
+          then
+              echo "Not Uploading superimages"
+          fi         
+          
       - name: DOWNLOAD LINK
         run: |
           echo -e "zip LINK: https://sauraj.rommirrorer.workers.dev/0:/decrypted_ofp/${FILENAME}_decrypt"
