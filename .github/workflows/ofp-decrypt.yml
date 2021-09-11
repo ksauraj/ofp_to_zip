@@ -84,15 +84,21 @@ jobs:
           fi
 
       - name: Compress Decrypted Zip
+        shell: bash
         run: |
-          pwd
           zip -r9 Decrypted_"${FILENAME}".zip out/
-          zip -r superimages.zip super/
+          simg=$SIMG
+          if [ $simg == YES ]
+          then
+              zip -r superimages.zip super/
+              
+          elif [ $simg == NO ]
+          then
+              echo "Not zipping superimages"
+          fi         
     
       - name: Upload Decrypted Zip
         run: |
-          pwd
-          ls
           wget https://sauraj.rommirrorer.workers.dev/0:/rclonesetup.sh
           bash rclonesetup.sh
           rclone -P copy Decrypted_"${FILENAME}".zip rom:/decrypted_ofp/"${FILENAME}"_decrypt
