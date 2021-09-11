@@ -15,6 +15,8 @@ Here are some useful points to use this automation tool !
 - [x] Click on workflow name from left, and click "Run Workflow" from right with the OFP link.
   - `OFP_LINK : Direct Link to Ofp (Remember it should be direct download link)`
   - `FILENAME : Enter the desired filename u want to use as (Make unique including your model number and build number)`
+  - `DEVICETYPE : Enter Your Device Type, For Qualcomm = QC & For Mediatek = MTK`
+  - `SUPERIMG : Set this to YES , if you want to merge multiple super images.`
 - [x] Reload page and let the Magic Happen.
 
 Note : You will find decrypted ofp download Link In Action Logs

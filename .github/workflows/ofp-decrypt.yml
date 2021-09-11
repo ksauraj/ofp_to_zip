@@ -9,11 +9,19 @@ on:
       filename:
         description: 'The filename You want in output (make unique)'
         required: true
-
+      devicetype:
+        description: 'Specify Your Device type. { For Qualcomm (QC) FOR MEDIATEK (MTK) }'
+        required: true
+      simage:
+        description: 'Do you want to merege super images, if yes then type <YES>'
+        required: false
+        default: 'NO'
 
 env:
   OFP_LINK: ${{ github.event.inputs.ofp_link }}
   FILENAME: ${{ github.event.inputs.filename }}
+  DTYPE: ${{ github.event.inputs.devicetype }}
+  SIMG: ${{ github.event.inputs.simage }}
 
 jobs:
   build:
@@ -32,6 +40,7 @@ jobs:
           echo "OFP_NAME=${OFPNAME}" >> ${GITHUB_ENV}
 
       - name: Prepare Decrypter and Decrypt OFP
+        shell: bash
         run: |
           sudo apt-fast update -qqy
           sudo apt-fast install -qqy openssl rsync sshpass
@@ -39,17 +48,40 @@ jobs:
           sudo pip3 install --upgrade pycryptodome
           sudo apt install simg2img
           git clone https://github.com/bkerler/oppo_decrypt.git --depth=1
-          printf "Trying to Decrypt QC OFP...\n"
-          python3 ./oppo_decrypt/ofp_mtk_decrypt.py "$OFP_FILE" out 2>/dev/null
+          dtype=$DTYPE
+          if [ $dtype == QC ]
+          then
+              printf "Trying to Decrypt QC OFP...\n"
+              python3 ./oppo_decrypt/ofp_mtk_decrypt.py "$OFP_FILE" out 2>/dev/null
+
+          elif [ $dtype == MTK ]
+          then
+              printf "Trying to Decrypt MTK OFP...\n"
+              python3 ./oppo_decrypt/ofp_mtk_decrypt.py "$OFP_FILE" out 2>/dev/null
+
+          else
+              printf "Specify your Device Type...\n"
+              printf "Cancelling Build\n"
+          fi
 
       - name: Combine super images
+        shell: bash
         run: |
-          mkdir super
-          mv out/*super*.img super/
-          cd super
-          simg2img *super*.img super.img
-          mv super.img ../out         
-          cd ..
+          simg=$SIMG
+          if [ $simg == YES ]
+          then
+              print "Merging images"
+              mkdir super
+              mv out/*super*.img super/
+              cd super
+              simg2img *super*.img super.img
+              mv super.img ../out         
+              cd ..
+            
+          elif [ $simg == NO ]
+          then
+              echo "Not merging images"
+          fi
 
       - name: Compress Decrypted Zip
         run: |
