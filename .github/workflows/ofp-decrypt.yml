@@ -79,7 +79,7 @@ jobs:
           simg=$SIMG
           if [ $simg == YES ]
           then
-              print "Merging images"
+              echo "Merging images"
               mkdir super
               mv out/*super*.img super/
               cd super
