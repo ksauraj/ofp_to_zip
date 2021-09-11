@@ -17,6 +17,7 @@ Here are some useful points to use this automation tool !
   - `FILENAME : Enter the desired filename u want to use as (Make unique including your model number and build number)`
   - `DEVICETYPE : Enter Your Device Type, For Qualcomm = QC & For Mediatek = MTK`
   - `SUPERIMG : Set this to YES , if you want to merge multiple super images.`
+  - `BIGFILE : Set this to YES , if your file size is more than 8GB ( setting to yes will take more time )`
 - [x] Reload page and let the Magic Happen.
 
 Note : You will find decrypted ofp download Link In Action Logs
