@@ -65,7 +65,7 @@ jobs:
 
       - name: DOWNLOAD LINK
         run: |
-          echo '''zip LINK: https://sauraj.rommirrorer.workers.dev/0:/decrypted_ofp/"${FILENAME}"_decrypt'''
+          echo 'zip LINK: https://sauraj.rommirrorer.workers.dev/0:/decrypted_ofp/"${FILENAME}"_decrypt'
           echo "Edited By Sauraj"
           
           
