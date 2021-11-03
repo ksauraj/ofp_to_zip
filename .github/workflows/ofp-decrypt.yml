@@ -81,10 +81,9 @@ jobs:
           then
               echo "Merging images"
               mkdir super
-              mv out/*super*.img super/
-              cd super
-              simg2img *super*.img super.img
-              mv super.img ../out         
+              cd out
+              sed '5!d' super*.csv >> tmp.txt && sed -i "s/,/ /" tmp* && sed -i "s/,/ /" tmp* && sed -i "s/,/ /" tmp* && sed -i "s/,/ /" tmp* && egrep -o [a-zA-Z0-9.-]*super[a-zA-Z0-9.-]* tmp* >> supermap.sh && sed  -i "1s/^/first=/" supermap.sh && sed  -i "2s/^/second=/" supermap.sh && mkdir -p temp/retard && sed  -i "3s/^/third=/" supermap.sh && echo "copy /b \$first+\$second+\$third super.img" >> supermap.sh && bash supermap.sh         
+              mv ../*out/*super* ../super/
               cd ..
             
           elif [ $simg == NO ]
