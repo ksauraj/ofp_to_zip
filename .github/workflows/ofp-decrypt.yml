@@ -88,7 +88,8 @@ jobs:
               gl=$(cat number.txt)              
                if [[ "$gl" = *,* ]];
                then                    
-                   echo $ln > tmp.sh && sed -i "s/ /\n/" tmp.sh && sed  -i "1s/^/sln1=/" tmp.sh && sed  -i "2s/^/sln2=/" tmp.sh && echo '''sln3=$(($sln1+1))''' >> tmp.sh && echo '''sln4=$(($sln2+1))''' >> tmp.sh && echo '''sed -i "${sln3}s/false/true/" *scatter*.txt && sed -i "${sln4}s/false/true/" *scatter*.txt''' >> tmp.sh && bash tmp.sh
+                   echo $ln > okay.sh && sed -i "s/ /\n/" okay.sh && sed  -i "1s/^/sln1=/" okay.sh && sed  -i "2s/^/sln2=/" okay.sh && echo '''sln3=$(($sln1+1))''' >> okay.sh && echo '''sln4=$(($sln2+1))''' >> okay.sh && echo '''sed -i "${sln3}s/false/true/" *scatter*.txt && sed -i "${sln4}s/false/true/" *scatter*.txt''' >> okay.sh && bash okay.sh
+                   rm okay.sh
                else                   
                    sln=$(($ln+1)) && sed -i "${sln}s/false/true/" *scatter*.txt
                fi
