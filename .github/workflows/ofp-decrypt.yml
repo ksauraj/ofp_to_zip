@@ -52,6 +52,7 @@ jobs:
         shell: bash
         run: |
           sudo apt-fast update -qqy
+          sudo apt-fast -y install python3-testresources
           sudo apt-fast install -qqy openssl rsync sshpass
           sudo pip3 install --upgrade pip wheel setuptools
           sudo pip3 install --upgrade pycryptodome
