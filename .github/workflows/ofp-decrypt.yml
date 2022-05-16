@@ -126,7 +126,7 @@ jobs:
           simg=$SIMG
           if [ $simg == YES ]
           then
-              rclone -P copy superimages.zip rom:/MY_BOMT_STUFFS/DECRYPTED_OFPS/decrypted_ofp/"${FILENAME}"_decrypt
+              rclone -P copy superimages.zip oned:/MY_BOMT_STUFFS/DECRYPTED_OFPS/decrypted_ofp/"${FILENAME}"_decrypt
               
           elif [ $simg == NO ]
           then
