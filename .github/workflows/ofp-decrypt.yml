@@ -122,7 +122,7 @@ jobs:
           wget https://gist.githubusercontent.com/noobyysauraj/8a0a66cc3fd3f5a513a4eee3f5625b38/raw/a079327aa326cf916df6704d28778f81566a0b82/rclone.conf
           mkdir $HOME/.config/rclone/
           mv rclone.conf $HOME/.config/rclone/
-          rclone -P copy Decrypted_"${FILENAME}".zip oned:/decrypted_ofp/"${FILENAME}"_decrypt
+          rclone -P copy Decrypted_"${FILENAME}".zip oned:/MY_BOMT_STUFFS/DECRYPTED_OFPS/decrypted_ofp/"${FILENAME}"_decrypt
           simg=$SIMG
           if [ $simg == YES ]
           then
