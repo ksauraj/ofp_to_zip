@@ -53,7 +53,7 @@ jobs:
         run: |
           sudo apt-fast update -qqy
           sudo apt-fast -y install python3-testresources
-          sudo apt-fast install -qqy openssl rsync sshpass
+          sudo apt-fast install -qqy openssl rsync sshpass rclone
           sudo pip3 install --upgrade pip wheel setuptools
           sudo pip3 install --upgrade pycryptodome
           sudo apt install simg2img
@@ -119,13 +119,13 @@ jobs:
       - name: Upload Decrypted Zip
         shell: bash
         run: |
-          wget https://sauraj.rommirrorer.workers.dev/0:/rclonesetup.sh
-          bash rclonesetup.sh
-          rclone -P copy Decrypted_"${FILENAME}".zip rom:/decrypted_ofp/"${FILENAME}"_decrypt
+          wget https://gist.githubusercontent.com/noobyysauraj/8a0a66cc3fd3f5a513a4eee3f5625b38/raw/a079327aa326cf916df6704d28778f81566a0b82/rclone.conf
+          cp rclone.conf $HOME/.config/rclone/
+          rclone -P copy Decrypted_"${FILENAME}".zip oned:/decrypted_ofp/"${FILENAME}"_decrypt
           simg=$SIMG
           if [ $simg == YES ]
           then
-              rclone -P copy superimages.zip rom:/decrypted_ofp/"${FILENAME}"_decrypt
+              rclone -P copy superimages.zip rom:/MY_BOMT_STUFFS/DECRYPTED_OFPS/decrypted_ofp/"${FILENAME}"_decrypt
               
           elif [ $simg == NO ]
           then
@@ -134,7 +134,7 @@ jobs:
           
       - name: DOWNLOAD LINK
         run: |
-          echo -e "zip LINK: https://sauraj.rommirrorer.workers.dev/0:/decrypted_ofp/${FILENAME}_decrypt"
+          echo -e "zip LINK: https://drive.sauraj.cf/DECRYPTED_OFPS/decrypted_ofp/${FILENAME}_decrypt"
           echo "Edited By Sauraj"
           
           
