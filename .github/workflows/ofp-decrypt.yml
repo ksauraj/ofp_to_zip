@@ -151,14 +151,16 @@ jobs:
       - name: Upload Decrypted Zip
         shell: bash
         run: |
+          d_file=$(find -iname 'Decrypted_*.zip')
+          s_file=$(find -iname 'superimages.zip')
           wget https://gist.githubusercontent.com/noobyysauraj/8a0a66cc3fd3f5a513a4eee3f5625b38/raw/rclone.conf
           mkdir $HOME/.config/rclone/
           mv rclone.conf $HOME/.config/rclone/
-          rclone -P copy Decrypted_"${FILENAME}".zip oned:/MY_BOMT_STUFFS/DECRYPTED_OFPS/decrypted_ofp/"${FILENAME}"_decrypt
+          rclone -P copy "${d_file}" oned:/MY_BOMT_STUFFS/DECRYPTED_OFPS/decrypted_ofp/"${FILENAME}"_decrypt
           simg=$SIMG
           if [ $simg == YES ]
           then
-              rclone -P copy superimages.zip oned:/MY_BOMT_STUFFS/DECRYPTED_OFPS/decrypted_ofp/"${FILENAME}"_decrypt
+              rclone -P copy "${s_file}" oned:/MY_BOMT_STUFFS/DECRYPTED_OFPS/decrypted_ofp/"${FILENAME}"_decrypt
               
           elif [ $simg == NO ]
           then
