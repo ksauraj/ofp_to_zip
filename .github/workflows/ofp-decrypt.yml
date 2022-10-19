@@ -1,3 +1,4 @@
+
 name: OFP Decrypter by Area69Labs
 
 on:
@@ -37,16 +38,40 @@ jobs:
         uses: actions/checkout@main
 
       - name: CleanUp Enviroment
-        if: ${{ github.event.inputs.bigfile }} == 'YES'
+        if: ${{ github.event.inputs.bigfile == 'YES' }}
         uses: rokibhasansagar/slimhub_actions@main
 
       - name: Download OFP Firmware
+        shell: bash
         run: |
+          sudo apt-get install -qy --show-progress coreutils build-essential p7zip-full p7zip-rar zip
+          rm -rf *
           aria2c -c -s16 -x16 "$OFP_LINK" 2>/dev/null || wget -q --show-progress "$OFP_LINK"
-          OFPFILE=${OFP_LINK##*/}
-          echo "OFP_FILE=${OFPFILE}" >> ${GITHUB_ENV}
-          OFPNAME=${OFPFILE%.*}
-          echo "OFP_NAME=${OFPNAME}" >> ${GITHUB_ENV}
+            if [ -f *.zip ]; then
+                unzip *.zip && rm *.zip
+                cp "$(find -iname '*.ofp')" .
+                rm -rfv $(find -type d)
+                find . -not -iname '*.ofp' | xargs rm -rfv
+                OFPFILE=$(ls)
+                echo "OFP_FILE=${OFPFILE}" >> ${GITHUB_ENV}
+                OFPNAME=${OFP_FILE#.ofp}
+                echo "OFP_NAME=${OFPNAME}" >> ${GITHUB_ENV}
+                echo "OFP FILE = ${OFPFILE}"
+                echo "OFP NAME = ${OFPNAME}"
+            elif [ -f *.ofp ]; then
+                find . -not -iname '*.ofp' | xargs rm -rfv
+                OFPFILE=$(ls)
+                echo "OFP_FILE=${OFPFILE}" >> ${GITHUB_ENV}
+                OFPNAME=${OFP_FILE#.ofp}
+                echo "OFP_NAME=${OFPNAME}" >> ${GITHUB_ENV}
+                echo "OFP FILE = ${OFPFILE}"
+                echo "OFP NAME = ${OFPNAME}"
+            else
+                OFPFILE=${OFP_LINK##*/}
+                echo "OFP_FILE=${OFPFILE}" >> ${GITHUB_ENV}
+                OFPNAME=${OFPFILE%.*}
+                echo "OFP_NAME=${OFPNAME}" >> ${GITHUB_ENV}
+            fi
 
       - name: Prepare Decrypter and Decrypt OFP
         shell: bash
@@ -94,7 +119,11 @@ jobs:
                else                   
                    sln=$(($ln+1)) && sed -i "${sln}s/false/true/" *scatter*.txt
                fi
-              sed '2!d' super*.csv >> tmp.txt && sed -i "s/,/ /" tmp* && sed -i "s/,/ /" tmp* && sed -i "s/,/ /" tmp* && sed -i "s/,/ /" tmp* && egrep -o [a-zA-Z0-9.-]*super[a-zA-Z0-9.-]* tmp* >> supermap.sh && sed  -i "1s/^/first=/" supermap.sh && sed  -i "2s/^/second=/" supermap.sh && mkdir -p temp/retard && mkdir -p ../super && sed  -i "3s/^/third=/" supermap.sh && echo "cp \$first \$second \$third temp/retard/" >> supermap.sh && bash supermap.sh && cd temp/retard && sudo apt install simg2img && sudo apt-get install libz-dev && simg2img *super*.img super.img && mv ../../*super*.img ../../../super && mv super.img ../.. && rm -rf temp/retard
+              sed '2!d' super*.csv >> tmp.txt && sed -i "s/,/ /" tmp* && sed -i "s/,/ /" tmp* && sed -i "s/,/ /" tmp* && sed -i "s/,/ /" tmp* && egrep -o [a-zA-Z0-9.-]*super[a-zA-Z0-9.-]* tmp* >> supermap.sh && sed  -i "1s/^/first=/" supermap.sh && sed  -i "2s/^/second=/" supermap.sh && mkdir -p temp/retard && mkdir -p ../super && sed  -i "3s/^/third=/" supermap.sh && echo "cp \$first \$second \$third temp/retard/" >> supermap.sh && bash supermap.sh
+              cd temp/retard
+              sudo apt install simg2img && sudo apt-get install libz-dev
+              simg2img *super*.img super.img && mv ../../*super*.img ../../../super && mv super.img ../.. 
+              cd ../.. && rm -rf temp/retard
               cd ..
             
           elif [ $simg == NO ]
@@ -105,12 +134,15 @@ jobs:
       - name: Compress Decrypted Zip
         shell: bash
         run: |
-          zip -r9 Decrypted_"${FILENAME}".zip out/
+          cd out
+          zip -r9 Decrypted_"${FILENAME}".zip *
+          cd ..
           simg=$SIMG
           if [ $simg == YES ]
           then
-              zip -r superimages.zip super/
-              
+              cd super
+              zip -r superimages.zip *
+              cd ..            
           elif [ $simg == NO ]
           then
               echo "Not zipping superimages"
