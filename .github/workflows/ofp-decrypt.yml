@@ -50,7 +50,8 @@ jobs:
           aria2c -c -s16 -x16 "$OFP_LINK" 2>/dev/null || wget -q --show-progress "$OFP_LINK"
             if [ -f *.zip ]; then
                 unzip *.zip -d out && rm *.zip
-                mv out/*.ofp . || true
+                ls -R
+                mv $(find . -name "*.ofp") .
                 rm -rf */
                 OFPFILE=$(ls *.ofp)
                 echo "OFP_FILE=${OFPFILE}" >> ${GITHUB_ENV}
@@ -59,7 +60,7 @@ jobs:
                 echo "OFP FILE = ${OFPFILE}"
                 echo "OFP NAME = ${OFPNAME}"
             elif [ -f *.ofp ]; then
-                find . -not -iname '*.ofp' | xargs rm -rfv
+                find . -not -iname '*.ofp' | xargs rm -rfv || true
                 OFPFILE=$(ls)
                 echo "OFP_FILE=${OFPFILE}" >> ${GITHUB_ENV}
                 OFPNAME=${OFP_FILE#.ofp}
