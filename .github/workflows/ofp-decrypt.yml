@@ -81,9 +81,12 @@ jobs:
           sudo apt-fast -y install python3-testresources
           sudo apt-fast install -qqy openssl rsync sshpass rclone
           sudo pip3 install --upgrade pip wheel setuptools
-          sudo pip3 install --upgrade pycryptodome
+          sudo pip install pycryptodome
           sudo apt install simg2img
           git clone https://github.com/bkerler/oppo_decrypt.git --depth=1
+          cd oppo_decrypt
+          pip3 install -r requirements.txt
+          cd ..
           dtype=$DTYPE
           if [ $dtype == QC ]
           then
