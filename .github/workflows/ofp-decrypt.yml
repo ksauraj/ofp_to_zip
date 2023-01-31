@@ -1,5 +1,3 @@
-
-
 name: OFP Decrypter by Area69Labs
 
 on:
@@ -18,10 +16,14 @@ on:
         description: 'Do you want to merege super images, if yes then type <YES>'
         required: false
         default: 'NO'
+      region:
+        description: 'Specify a region for merging super iamges. Like <IN> for India.'
+        required: false
+        default: 'IN'
       bigfile:
         description: 'Set to YES if your ofp file is more than 8GB. Setting to yes will take more time.'
         required: false
-        default: 'NO'        
+        default: 'NO'
 
 env:
   OFP_LINK: ${{ github.event.inputs.ofp_link }}
@@ -29,6 +31,7 @@ env:
   DTYPE: ${{ github.event.inputs.devicetype }}
   SIMG: ${{ github.event.inputs.simage }}
   BFILE: ${{ github.event.inputs.bigfile }}
+  REGION: ${{ github.event.inputs.region }}
   
 jobs:
   build:
@@ -159,5 +162,3 @@ jobs:
         run: |
           echo -e "zip LINK: https://drive.sauraj.cf/DECRYPTED_OFPS/decrypted_ofp/${FILENAME}_decrypt"
           echo "Edited By Sauraj"
-          
-          
