@@ -15,7 +15,7 @@ on:
       simage:
         description: 'Do you want to merege super images, if yes then type <YES>'
         required: false
-        default: 'NO'
+        default: 'YES'
       region:
         description: 'Specify a region for merging super iamges. Like <IN> for India.'
         required: false
@@ -25,6 +25,7 @@ on:
         required: false
         default: 'NO'
 
+
 env:
   OFP_LINK: ${{ github.event.inputs.ofp_link }}
   FILENAME: ${{ github.event.inputs.filename }}
@@ -32,7 +33,7 @@ env:
   SIMG: ${{ github.event.inputs.simage }}
   BFILE: ${{ github.event.inputs.bigfile }}
   REGION: ${{ github.event.inputs.region }}
-  
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -121,6 +122,8 @@ jobs:
             cd ..
           elif [ $simg == NO ]
           then
+              echo "Not merging images"
+          fi
 
       - name: Compress Decrypted Zip
         shell: bash
