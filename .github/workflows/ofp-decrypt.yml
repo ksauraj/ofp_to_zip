@@ -123,5 +123,5 @@ jobs:
 
       - name: Download link for the prepared ZIP file
         run: |
-          echo -e "zip LINK: https://drive.sauraj.cf/DECRYPTED_OFPS/decrypted_ofp/${FILENAME}_decrypt"
+          echo -e "Zip file download: https://drive.sauraj.cf/DECRYPTED_OFPS/decrypted_ofp/${FILENAME}_decrypt"
           echo "Edited By Sauraj & Pratham ;)"
