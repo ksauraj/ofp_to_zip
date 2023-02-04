@@ -1,7 +1,7 @@
 # Oppo/Realme/OnePlus OFP Decryptor
 
 ## What is this??
-An Online OFP Decryptor written in Bash and made possible by Github's Workflow & Action feature.
+An Online OFP Decryptor written in Bash and made possible by Github's Workflow & Action feature.   
 **Thank GitHub, not me :)**
 
 ## How to use
@@ -27,5 +27,5 @@ Enjoy Decrypting OFP Online ;)
 
 ©Area69Lab
 
-Edited by ***Sauraj(@ksauraj)***\n
+Edited by ***Sauraj(@ksauraj)***   
 Edited by ***Pratham(@PrathamWasTaken)***
