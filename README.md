@@ -4,7 +4,7 @@
 An Online OFP Decryptor written in Bash and made possible by Github's Workflow & Action feature.   
 **Thank GitHub, not me :)**
 
-## How to use
+## How to use??
 **Here are some useful points to use this automation tool!!**
 - [x] Fork the repo.
 - [x] Go to actions tab, Enable workflows.
@@ -17,15 +17,14 @@ An Online OFP Decryptor written in Bash and made possible by Github's Workflow &
   - `REGION : Enter the region for which super images get combined. ( IN for India, PK for Pakistan, RU for Russia, EU for Europe )`
   - `BIGFILE : Set this to YES , if your file size is more than 8GB ( setting to yes will take more time )`
 - [x] Reload page and let the magic Happen.   
-_Note : You will find decrypted ofp download Link In Action Logs_
 
-## Credits and Thanks to People Who Helped me
+## Credits
 Script made by [***Aryan Sinha (techyminati)***](https://github.com/techyminati)   
-Thanks [***bkerler***](https://github.com/bkerler) for his OFP decryptor script 
+Thanks [***bkerler***](https://github.com/bkerler) for his OFP decryptor script   
 
-Enjoy Decrypting OFP Online ;)
+Enjoy Decrypting OFP Online ;)   
 
-©Area69Lab
+©Area69Lab   
 
 Edited by ***Sauraj(@ksauraj)***   
 Edited by ***Pratham(@PrathamWasTaken)***
