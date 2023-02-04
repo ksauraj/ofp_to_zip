@@ -45,20 +45,18 @@ jobs:
         if: ${{ github.event.inputs.bigfile == 'YES' }}
         uses: rokibhasansagar/slimhub_actions@main
 
-      - name: Setup working environment
-        shell: bash
-        run: |
-          sudo apt-fast update -qqy
-          sudo apt-fast install -qqy coreutils p7zip-full p7zip-rar python3 python3-pip rclone simg2img
-
       - name: Download OFP Firmware
         shell: bash
         run: |
+          sudo apt-fast update -qqy
+          sudo apt-fast install -qqy coreutils p7zip-full p7zip-rar
           aria2c -c -s16 -x16 "$OFP_LINK" 2>/dev/null || { echo "Error: The provided URL is invalid." && exit 1 }
           file_extension=${OFP_LINK##*.}
           if [ "$file_extension" != "ofp" ]; then
             7z e *."${file_extension}" -y && rm *."${file_extension}"
-            if [ ! -f *.ofp ]; then mv $(find . -name "*.ofp") .; fi
+            if [ ! -f *.ofp ]; then
+              mv $(find . -name "*.ofp") .
+            fi
             find . -type f ! -name "*.ofp" -delete
             OFPFILE=$(basename *.ofp)
             OFPNAME=${OFPFILE#.ofp}
@@ -75,6 +73,7 @@ jobs:
       - name: Prepare Decrypter and Decrypt OFP
         shell: bash
         run: |
+          sudo apt-fast install -qqy python3 python3-pip rclone simg2img
           curl -s "https://raw.githubusercontent.com/bkerler/oppo_decrypt/master/requirements.txt" -o "requirements.txt"
           pip3 install -r requirements.txt && rm requirements.txt
           mkdir "out"
