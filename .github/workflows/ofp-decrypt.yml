@@ -38,14 +38,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Setting up the working environment
         uses: actions/checkout@main
 
-      - name: CleanUp Enviroment
+      - name: Cleaning up the working environment
         if: ${{ github.event.inputs.bigfile == 'YES' }}
         uses: rokibhasansagar/slimhub_actions@main
 
-      - name: Download OFP Firmware
+      - name: Downloading the OFP firmware
         shell: bash
         run: |
           sudo apt-fast update -qqy
@@ -66,7 +66,7 @@ jobs:
           echo "OFP_FILE=${OFPFILE}" >> ${GITHUB_ENV}
           echo "OFP_NAME=${OFPNAME}" >> ${GITHUB_ENV}
 
-      - name: Prepare Decrypter and Decrypt OFP
+      - name: Decrypting the OFP firmware
         shell: bash
         run: |
           curl -s "https://raw.githubusercontent.com/bkerler/oppo_decrypt/master/requirements.txt" -o "requirements.txt"
@@ -82,16 +82,23 @@ jobs:
           fi
           python3 script.py "$OFP_FILE" out 2>/dev/null && rm script.py
 
-      - name: Combine super images
+      - name: Combining the raw super images
         shell: bash
         run: |
           if [ "$SIMG" == "YES" ]; then
             cd out
             curl -s https://gist.githubusercontent.com/noobyysauraj/50bea76ade411df498e108b045674f1d/raw/merge.sh -o merge.sh
             bash merge.sh $REGION && rm merge.sh
+            for file in *; do
+              if [[ "$file" == *"super"* ]]; then
+                if [[ "$file" != "super.img" ]]; then
+                  rm $file
+                fi
+              fi
+            done
           elif [ "$SIMG" == "NO" ]; then echo "Info: Not merging super images."; fi
 
-      - name: Compress Decrypted Zip
+      - name: Compressing the decrypted files
         shell: bash
         run: |
           cd out
@@ -102,7 +109,7 @@ jobs:
           fi
           7z a Decrypted_"${FILENAME}".7z * -y
 
-      - name: Upload Decrypted Zip
+      - name: Uploading the prepared ZIP file
         shell: bash
         run: |
           d_file=$(find -iname 'Decrypted_*.7z')
@@ -114,7 +121,7 @@ jobs:
             rclone -P copy "$s_file" oned:/MY_BOMT_STUFFS/DECRYPTED_OFPS/decrypted_ofp/"${FILENAME}"_decrypt
           fi
 
-      - name: DOWNLOAD LINK
+      - name: Download link for the prepared ZIP file
         run: |
           echo -e "zip LINK: https://drive.sauraj.cf/DECRYPTED_OFPS/decrypted_ofp/${FILENAME}_decrypt"
           echo "Edited By Sauraj & Pratham ;)"
