@@ -50,7 +50,7 @@ jobs:
         run: |
           sudo apt-fast update -qqy
           sudo apt-fast install -qqy coreutils p7zip-full p7zip-rar
-          aria2c -c -s16 -x16 "$OFP_LINK" 2>/dev/null || { echo "Error: The provided URL is invalid." && exit 1 }
+          aria2c -c -s16 -x16 "$OFP_LINK" 2>/dev/null
           file_extension=${OFP_LINK##*.}
           if [ "$file_extension" != "ofp" ]; then
             7z e *."${file_extension}" -y && rm *."${file_extension}"
