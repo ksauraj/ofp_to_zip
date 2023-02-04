@@ -104,10 +104,10 @@ jobs:
           cd out
           if [ "$SIMG" == "NO" ]; then
             rm super_map.csv
-            7z a super_images.7z *super* -y && mv super_images.7z ..
+            7z a -mx1 super_images.7z *super* -y && mv super_images.7z ..
             rm -rf *super*
           fi
-          7z a Decrypted_"${FILENAME}".7z * -y
+          7z a -mx1 Decrypted_"${FILENAME}".7z * -y
 
       - name: Uploading the prepared ZIP file
         shell: bash
