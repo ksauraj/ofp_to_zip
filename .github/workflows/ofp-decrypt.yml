@@ -70,57 +70,79 @@ jobs:
       - name: Decrypting the OFP firmware
         shell: bash
         run: |
-          curl -s "https://raw.githubusercontent.com/bkerler/oppo_decrypt/master/requirements.txt" -o "requirements.txt"
-          pip3 install -r requirements.txt && rm requirements.txt
-          mkdir "out"
-          if [ "$DTYPE" = "MTK" ]; then
-            curl -s "https://raw.githubusercontent.com/bkerler/oppo_decrypt/master/ofp_mtk_decrypt.py" -o "script.py"
-          elif [ "$DTYPE" = "QCOM" ]; then
-            curl -s "https://raw.githubusercontent.com/bkerler/oppo_decrypt/master/ofp_qc_decrypt.py" -o "script.py"
+          sudo apt-fast update -qqy
+          sudo apt-fast -y install python3-testresources
+          sudo apt-fast install -qqy openssl rsync sshpass rclone
+          sudo pip3 install --upgrade pip wheel setuptools
+          sudo pip install pycryptodome
+          sudo apt install simg2img
+          git clone https://github.com/bkerler/oppo_decrypt.git --depth=1
+          cd oppo_decrypt
+          pip3 install -r requirements.txt
+          cd ..
+          dtype=$DTYPE
+          if [ $dtype == QC ]
+          then
+              echo "Trying to Decrypt QC OFP...\n"
+              python3 ./oppo_decrypt/ofp_mtk_decrypt.py "$OFP_FILE" out 2>/dev/null
+          elif [ $dtype == MTK ]
+          then
+              echo "Trying to Decrypt MTK OFP...\n"
+              python3 ./oppo_decrypt/ofp_mtk_decrypt.py "$OFP_FILE" out 2>/dev/null
           else
-            echo "Error: Invalid device type provided."
-            exit 1
+              echo "Error: Invalid device type provided."
+              exit 1
           fi
-          python3 script.py "$OFP_FILE" out 2>/dev/null && rm script.py
-
-      - name: Combining the raw super images
+      - name: Combine super images
         shell: bash
         run: |
-          if [ "$SIMG" == "YES" ]; then
-            cd out
-            curl -s https://gist.githubusercontent.com/noobyysauraj/50bea76ade411df498e108b045674f1d/raw/merge.sh -o merge.sh
-            bash merge.sh $REGION && rm merge.sh
-            for file in *; do
-              if [[ "$file" == *"super"* ]]; then
-                if [[ "$file" != "super.img" ]]; then
-                  rm $file
-                fi
-              fi
-            done
-          elif [ "$SIMG" == "NO" ]; then echo "Info: Not merging super images."; fi
-
-      - name: Compressing the decrypted files
+          simg=$SIMG
+          if [ $simg == YES ]
+          then
+              mkdir -p super
+              cd out
+              curl -s https://gist.githubusercontent.com/noobyysauraj/50bea76ade411df498e108b045674f1d/raw/merge.sh -o merge.sh
+              bash merge.sh $REGION
+              mv *super*img ../super
+              mv ../super/super.img .
+              cd ..
+          elif [ $simg == NO ]
+          then
+              echo "Not merging images"
+          fi
+      - name: Compress Decrypted Zip
         shell: bash
         run: |
-          cd out
-          if [ "$SIMG" == "NO" ]; then
-            rm super_map.csv
-            7z a -mx1 superimages.7z *super* -y && mv superimages.7z ..
-            rm -rf *super*
+          cd out && zip -r9 Decrypted_"${FILENAME}".zip * && cd ..
+          simg=$SIMG
+          if [ $simg == YES ]
+          then
+              cd super
+              zip -r superimages.zip *
+              cd ..            
+          elif [ $simg == NO ]
+          then
+              echo "Not zipping superimages"
           fi
-          7z a -mx1 Decrypted_"${FILENAME}".7z * -y
-
-      - name: Uploading the prepared ZIP file
+    
+      - name: Upload Decrypted Zip
         shell: bash
         run: |
-          d_file=$(find -iname "Decrypted_*.7z")
-          s_file=$(find -iname "superimages.7z")
-          curl -s https://gist.githubusercontent.com/noobyysauraj/8a0a66cc3fd3f5a513a4eee3f5625b38/raw/rclone.conf -o "rclone.conf"
-          mkdir $HOME/.config/rclone/ && mv rclone.conf $HOME/.config/rclone/
-          rclone -P copy "$d_file" oned:/MY_BOMT_STUFFS/DECRYPTED_OFPS/decrypted_ofp/"${FILENAME}"_decrypt
-          if [ "$SIMG" == "NO" ]; then
-            rclone -P copy "$s_file" oned:/MY_BOMT_STUFFS/DECRYPTED_OFPS/decrypted_ofp/"${FILENAME}"_decrypt
-          fi
+          d_file=$(find -iname 'Decrypted_*.zip')
+          s_file=$(find -iname 'superimages.zip')
+          wget https://gist.githubusercontent.com/noobyysauraj/8a0a66cc3fd3f5a513a4eee3f5625b38/raw/rclone.conf
+          mkdir $HOME/.config/rclone/
+          mv rclone.conf $HOME/.config/rclone/
+          rclone -P copy "${d_file}" oned:/MY_BOMT_STUFFS/DECRYPTED_OFPS/decrypted_ofp/"${FILENAME}"_decrypt
+          simg=$SIMG
+          if [ $simg == YES ]
+          then
+              rclone -P copy "${s_file}" oned:/MY_BOMT_STUFFS/DECRYPTED_OFPS/decrypted_ofp/"${FILENAME}"_decrypt
+              
+          elif [ $simg == NO ]
+          then
+              echo "Not Uploading superimages"
+          fi 
 
       - name: Download link for the prepared ZIP file
         run: |
