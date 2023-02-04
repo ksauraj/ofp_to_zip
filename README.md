@@ -27,5 +27,5 @@ Enjoy Decrypting OFP Online ;)
 
 ©Area69Lab
 
-Edited by ***Sauraj(@ksauraj)***
+Edited by ***Sauraj(@ksauraj)***\n
 Edited by ***Pratham(@PrathamWasTaken)***
