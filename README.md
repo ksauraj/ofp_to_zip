@@ -20,7 +20,7 @@ An Online OFP Decryptor written in Bash and made possible by Github's Workflow &
 _Note : You will find decrypted ofp download Link In Action Logs_
 
 ## Credits and Thanks to People Who Helped me
-Script made by [***Aryan Sinha (techyminati)***](https://github.com/techyminati)
+Script made by [***Aryan Sinha (techyminati)***](https://github.com/techyminati)   
 Thanks [***bkerler***](https://github.com/bkerler) for his OFP decryptor script 
 
 Enjoy Decrypting OFP Online ;)
