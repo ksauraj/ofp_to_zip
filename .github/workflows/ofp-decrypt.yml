@@ -11,9 +11,10 @@ on:
         required: true
       devicetype:
         description: "Specify Your Device type. { For Qualcomm (QC) FOR MEDIATEK (MTK) }"
-        required: true
+        required: false
+        default: "MTK"
       simage:
-        description: "Do you want to merege super images, if yes then type <YES>"
+        description: "Do you want to merege super images, if yes then type YES otherwise NO"
         required: false
         default: "YES"
       region:
@@ -104,7 +105,7 @@ jobs:
           cd out
           if [ "$SIMG" == "NO" ]; then
             rm super_map.csv
-            7z a -mx1 superimages.7z *super* -y && mv super_images.7z ..
+            7z a -mx1 superimages.7z *super* -y && mv superimages.7z ..
             rm -rf *super*
           fi
           7z a -mx1 Decrypted_"${FILENAME}".7z * -y
