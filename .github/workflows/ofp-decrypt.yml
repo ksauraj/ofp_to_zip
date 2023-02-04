@@ -54,21 +54,13 @@ jobs:
           file_extension=${OFP_LINK##*.}
           if [ "$file_extension" != "ofp" ]; then
             7z e *."${file_extension}" -y && rm *."${file_extension}"
-            if [ ! -f *.ofp ]; then
-              mv $(find . -name "*.ofp") .
-            fi
-            find . -type f ! -name "*.ofp" -delete
-            OFPFILE=$(basename *.ofp)
-            OFPNAME=${OFPFILE#.ofp}
-            echo "OFP_FILE=${OFPFILE}" >> ${GITHUB_ENV}
-            echo "OFP_NAME=${OFPNAME}" >> ${GITHUB_ENV}
-          else
-            find . -type f ! -name "*.ofp" -delete
-            OFPFILE=$(basename *.ofp)
-            OFPNAME=${OFPFILE#.ofp}
-            echo "OFP_FILE=${OFPFILE}" >> ${GITHUB_ENV}
-            echo "OFP_NAME=${OFPNAME}" >> ${GITHUB_ENV}
+            mv $(find . -name "*.ofp") .
           fi
+          find . -type f ! -name "*.ofp" -delete
+          OFPFILE=$(basename *.ofp)
+          OFPNAME=${OFPFILE#.ofp}
+          echo "OFP_FILE=${OFPFILE}" >> ${GITHUB_ENV}
+          echo "OFP_NAME=${OFPNAME}" >> ${GITHUB_ENV}
 
       - name: Prepare Decrypter and Decrypt OFP
         shell: bash
