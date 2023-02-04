@@ -4,27 +4,26 @@ on:
   workflow_dispatch:
     inputs:
       ofp_link:
-        description: 'OFP Firmaware Link'
+        description: "OFP Firmaware Link"
         required: true
       filename:
-        description: 'The filename You want in output (make unique)'
+        description: "The filename You want in output (make unique)"
         required: true
       devicetype:
-        description: 'Specify Your Device type. { For Qualcomm (QC) FOR MEDIATEK (MTK) }'
+        description: "Specify Your Device type. { For Qualcomm (QC) FOR MEDIATEK (MTK) }"
         required: true
       simage:
-        description: 'Do you want to merege super images, if yes then type <YES>'
+        description: "Do you want to merege super images, if yes then type <YES>"
         required: false
-        default: 'YES'
+        default: "YES"
       region:
-        description: 'Specify a region for merging super iamges. Like <IN> for India.'
+        description: "Specify a region for merging super iamges. Like <IN> for India."
         required: false
-        default: 'IN'
+        default: "IN"
       bigfile:
-        description: 'Set to YES if your ofp file is more than 8GB. Setting to yes will take more time.'
+        description: "Set to YES if your ofp file is more than 8GB. Setting to yes will take more time."
         required: false
-        default: 'NO'
-
+        default: "NO"
 
 env:
   OFP_LINK: ${{ github.event.inputs.ofp_link }}
@@ -49,119 +48,75 @@ jobs:
       - name: Download OFP Firmware
         shell: bash
         run: |
-          sudo apt-get install -qy --show-progress coreutils build-essential p7zip-full p7zip-rar zip
-          rm -rf *
-          aria2c -c -s16 -x16 "$OFP_LINK" 2>/dev/null || wget -q --show-progress "$OFP_LINK"
-            if [ -f *.zip ]; then
-                unzip *.zip -d out && rm *.zip
-                ls -R
-                mv $(find . -name "*.ofp") .
-                rm -rf */
-                OFPFILE=$(ls *.ofp)
-                echo "OFP_FILE=${OFPFILE}" >> ${GITHUB_ENV}
-                OFPNAME=${OFP_FILE#.ofp}
-                echo "OFP_NAME=${OFPNAME}" >> ${GITHUB_ENV}
-                echo "OFP FILE = ${OFPFILE}"
-                echo "OFP NAME = ${OFPNAME}"
-            elif [ -f *.ofp ]; then
-                find . -not -iname '*.ofp' | xargs rm -rfv || true
-                OFPFILE=$(ls)
-                echo "OFP_FILE=${OFPFILE}" >> ${GITHUB_ENV}
-                OFPNAME=${OFP_FILE#.ofp}
-                echo "OFP_NAME=${OFPNAME}" >> ${GITHUB_ENV}
-                echo "OFP FILE = ${OFPFILE}"
-                echo "OFP NAME = ${OFPNAME}"
-            else
-                OFPFILE=${OFP_LINK##*/}
-                echo "OFP_FILE=${OFPFILE}" >> ${GITHUB_ENV}
-                OFPNAME=${OFPFILE%.*}
-                echo "OFP_NAME=${OFPNAME}" >> ${GITHUB_ENV}
-            fi
+          sudo apt-fast install -qqy coreutils p7zip-full p7zip-rar
+          aria2c -c -s16 -x16 "$OFP_LINK" 2>/dev/null || { echo "Error: The provided URL is invalid." && exit 1 }
+          file_extension=${OFP_LINK##*.}
+          if [ "$file_extension" != "ofp" ]; then
+            7z e *."${file_extension}" -y && rm *."${file_extension}"
+            if [ ! -f *.ofp ]; then mv $(find . -name "*.ofp") .; fi
+            find . -type f ! -name "*.ofp" -delete
+            OFPFILE=$(basename *.ofp)
+            OFPNAME=${OFPFILE#.ofp}
+            echo "OFP_FILE=${OFPFILE}" >> ${GITHUB_ENV}
+            echo "OFP_NAME=${OFPNAME}" >> ${GITHUB_ENV}
+          elif [ "$file_extension" = "ofp" ]; then
+            find . -type f ! -name "*.ofp" -delete
+            OFPFILE=$(basename *.ofp)
+            OFPNAME=${OFPFILE#.ofp}
+            echo "OFP_FILE=${OFPFILE}" >> ${GITHUB_ENV}
+            echo "OFP_NAME=${OFPNAME}" >> ${GITHUB_ENV}
+          fi
 
       - name: Prepare Decrypter and Decrypt OFP
         shell: bash
         run: |
-          sudo apt-fast update -qqy
-          sudo apt-fast -y install python3-testresources
-          sudo apt-fast install -qqy openssl rsync sshpass rclone
-          sudo pip3 install --upgrade pip wheel setuptools
-          sudo pip install pycryptodome
-          sudo apt install simg2img
-          git clone https://github.com/bkerler/oppo_decrypt.git --depth=1
-          cd oppo_decrypt
-          pip3 install -r requirements.txt
-          cd ..
-          dtype=$DTYPE
-          if [ $dtype == QC ]
-          then
-              printf "Trying to Decrypt QC OFP...\n"
-              python3 ./oppo_decrypt/ofp_mtk_decrypt.py "$OFP_FILE" out 2>/dev/null
-
-          elif [ $dtype == MTK ]
-          then
-              printf "Trying to Decrypt MTK OFP...\n"
-              python3 ./oppo_decrypt/ofp_mtk_decrypt.py "$OFP_FILE" out 2>/dev/null
-
+          sudo apt-fast install -qqy python3 python3-pip rclone simg2img
+          curl -s "https://raw.githubusercontent.com/bkerler/oppo_decrypt/master/requirements.txt" -o "requirements.txt"
+          pip3 install -r requirements.txt && rm requirements.txt
+          mkdir "out"
+          if [ "$DTYPE" = "MTK" ]; then
+            curl -s "https://raw.githubusercontent.com/bkerler/oppo_decrypt/master/ofp_mtk_decrypt.py" -o "script.py"
+          elif [ "$DTYPE" = "QCOM" ]; then
+            curl -s "https://raw.githubusercontent.com/bkerler/oppo_decrypt/master/ofp_qc_decrypt.py" -o "script.py"
           else
-              printf "Specify your Device Type...\n"
-              printf "Cancelling Build\n"
+            echo "Error: Invalid device type provided."
+            exit 1
           fi
+          python3 script.py "$OFP_FILE" out 2>/dev/null && rm script.py
 
       - name: Combine super images
         shell: bash
         run: |
-          simg=$SIMG
-          if [ $simg == YES ]
-          then
-            mkdir -p super
+          if [ "$SIMG" == "YES" ]; then
             cd out
             curl -s https://gist.githubusercontent.com/noobyysauraj/50bea76ade411df498e108b045674f1d/raw/merge.sh -o merge.sh
-            bash merge.sh $REGION
-            mv *super*img ../super
-            mv ../super/super.img .
-            cd ..
-          elif [ $simg == NO ]
-          then
-              echo "Not merging images"
-          fi
+            bash merge.sh $REGION && rm merge.sh
+          elif [ "$SIMG" == "NO" ]; then echo "Info: Not merging super images."; fi
 
       - name: Compress Decrypted Zip
         shell: bash
         run: |
           cd out
-          zip -r9 Decrypted_"${FILENAME}".zip *
-          cd ..
-          simg=$SIMG
-          if [ $simg == YES ]
-          then
-              cd super
-              zip -r superimages.zip *
-              cd ..            
-          elif [ $simg == NO ]
-          then
-              echo "Not zipping superimages"
-          fi         
-    
+          if [ "$SIMG" == "NO" ]; then
+            rm super_map.csv
+            7z a super_images.7z *super* -y && mv super_images.7z ..
+            rm -rf *super*
+          fi
+          7z a Decrypted_"${FILENAME}".7z * -y
+
       - name: Upload Decrypted Zip
         shell: bash
         run: |
-          d_file=$(find -iname 'Decrypted_*.zip')
-          s_file=$(find -iname 'superimages.zip')
-          wget https://gist.githubusercontent.com/noobyysauraj/8a0a66cc3fd3f5a513a4eee3f5625b38/raw/rclone.conf
-          mkdir $HOME/.config/rclone/
-          mv rclone.conf $HOME/.config/rclone/
-          rclone -P copy "${d_file}" oned:/MY_BOMT_STUFFS/DECRYPTED_OFPS/decrypted_ofp/"${FILENAME}"_decrypt
-          simg=$SIMG
-          if [ $simg == YES ]
-          then
-              rclone -P copy "${s_file}" oned:/MY_BOMT_STUFFS/DECRYPTED_OFPS/decrypted_ofp/"${FILENAME}"_decrypt
-              
-          elif [ $simg == NO ]
-          then
-              echo "Not Uploading superimages"
-          fi         
-          
+          d_file=$(find -iname 'Decrypted_*.7z')
+          s_file=$(find -iname 'superimages.7z')
+          curl -s https://gist.githubusercontent.com/noobyysauraj/8a0a66cc3fd3f5a513a4eee3f5625b38/raw/rclone.conf -o "rclone.conf"
+          mkdir $HOME/.config/rclone/ && mv rclone.conf $HOME/.config/rclone/
+          rclone -P copy "$d_file" oned:/MY_BOMT_STUFFS/DECRYPTED_OFPS/decrypted_ofp/"${FILENAME}"_decrypt
+          if [ "$SIMG" == "NO" ]; then
+            rclone -P copy "$s_file" oned:/MY_BOMT_STUFFS/DECRYPTED_OFPS/decrypted_ofp/"${FILENAME}"_decrypt
+          fi
+
       - name: DOWNLOAD LINK
         run: |
           echo -e "zip LINK: https://drive.sauraj.cf/DECRYPTED_OFPS/decrypted_ofp/${FILENAME}_decrypt"
-          echo "Edited By Sauraj"
+          echo "Edited By Sauraj & Pratham ;)"
