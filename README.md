@@ -16,7 +16,7 @@ An Online OFP Decryptor written in Bash and made possible by Github's Workflow &
   - `SUPERIMG : Set this to YES , if you want to merge multiple super images.`
   - `REGION : Enter the region for which super images get combined. ( IN for India, PK for Pakistan, RU for Russia, EU for Europe )`
   - `BIGFILE : Set this to YES , if your file size is more than 8GB ( setting to yes will take more time )`
-- [x] Reload page and let the magic Happen.
+- [x] Reload page and let the magic Happen.   
 _Note : You will find decrypted ofp download Link In Action Logs_
 
 ## Credits and Thanks to People Who Helped me
