@@ -1,30 +1,30 @@
-name: OFP Decrypter by Area69Labs
+name: Decrypt OFP
 
 on:
   workflow_dispatch:
     inputs:
       ofp_link:
-        description: 'OFP Firmaware Link'
+        description: "OFP Firmaware Link"
         required: true
       filename:
-        description: 'The filename You want in output (make unique)'
+        description: "The filename You want in output (make unique)"
         required: true
       devicetype:
-        description: 'Specify Your Device type. { For Qualcomm (QC) FOR MEDIATEK (MTK) }'
-        required: true
+        description: "Specify Your Device type. { For Qualcomm (QC) FOR MEDIATEK (MTK) }"
+        required: false
+        default: "MTK"
       simage:
-        description: 'Do you want to merege super images, if yes then type <YES>'
+        description: "Do you want to merege super images, if yes then type YES otherwise NO"
         required: false
-        default: 'YES'
+        default: "YES"
       region:
-        description: 'Specify a region for merging super iamges. Like <IN> for India.'
+        description: "Specify a region for merging super iamges. Like <IN> for India."
         required: false
-        default: 'IN'
+        default: "IN"
       bigfile:
-        description: 'Set to YES if your ofp file is more than 8GB. Setting to yes will take more time.'
+        description: "Set to YES if your ofp file is more than 8GB. Setting to yes will take more time."
         required: false
-        default: 'NO'
-
+        default: "NO"
 
 env:
   OFP_LINK: ${{ github.event.inputs.ofp_link }}
@@ -39,46 +39,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Setting up the working environment
         uses: actions/checkout@main
 
-      - name: CleanUp Enviroment
+      - name: Cleaning up the working environment
         if: ${{ github.event.inputs.bigfile == 'YES' }}
         uses: rokibhasansagar/slimhub_actions@main
 
-      - name: Download OFP Firmware
+      - name: Downloading the OFP firmware
         shell: bash
         run: |
-          sudo apt-get install -qy --show-progress coreutils build-essential p7zip-full p7zip-rar zip
-          rm -rf *
-          aria2c -c -s16 -x16 "$OFP_LINK" 2>/dev/null || wget -q --show-progress "$OFP_LINK"
-            if [ -f *.zip ]; then
-                unzip *.zip -d out && rm *.zip
-                ls -R
-                mv $(find . -name "*.ofp") .
-                rm -rf */
-                OFPFILE=$(ls *.ofp)
-                echo "OFP_FILE=${OFPFILE}" >> ${GITHUB_ENV}
-                OFPNAME=${OFP_FILE#.ofp}
-                echo "OFP_NAME=${OFPNAME}" >> ${GITHUB_ENV}
-                echo "OFP FILE = ${OFPFILE}"
-                echo "OFP NAME = ${OFPNAME}"
-            elif [ -f *.ofp ]; then
-                find . -not -iname '*.ofp' | xargs rm -rfv || true
-                OFPFILE=$(ls)
-                echo "OFP_FILE=${OFPFILE}" >> ${GITHUB_ENV}
-                OFPNAME=${OFP_FILE#.ofp}
-                echo "OFP_NAME=${OFPNAME}" >> ${GITHUB_ENV}
-                echo "OFP FILE = ${OFPFILE}"
-                echo "OFP NAME = ${OFPNAME}"
-            else
-                OFPFILE=${OFP_LINK##*/}
-                echo "OFP_FILE=${OFPFILE}" >> ${GITHUB_ENV}
-                OFPNAME=${OFPFILE%.*}
-                echo "OFP_NAME=${OFPNAME}" >> ${GITHUB_ENV}
+          sudo apt-fast update -qqy
+          sudo apt-fast install -qqy coreutils p7zip-full p7zip-rar python3 python3-pip rclone simg2img
+          aria2c -c -s16 -x16 "$OFP_LINK" 2>/dev/null || {
+            echo "Error: The provided URL is invalid." && exit 1
+          }
+          file_extension=${OFP_LINK##*.}
+          if [ "$file_extension" != "ofp" ]; then
+            7z e *."${file_extension}" -y && rm *."${file_extension}"
+            if [ ! -f *.ofp ]; then
+              mv $(find . -name "*.ofp") .
             fi
+          fi
+          find . -type f ! -name "*.ofp" -delete
+          OFPFILE=$(basename *.ofp)
+          OFPNAME=${OFPFILE#.ofp}
+          echo "OFP_FILE=${OFPFILE}" >> ${GITHUB_ENV}
+          echo "OFP_NAME=${OFPNAME}" >> ${GITHUB_ENV}
 
-      - name: Prepare Decrypter and Decrypt OFP
+      - name: Decrypting the OFP firmware
         shell: bash
         run: |
           sudo apt-fast update -qqy
@@ -94,43 +83,37 @@ jobs:
           dtype=$DTYPE
           if [ $dtype == QC ]
           then
-              printf "Trying to Decrypt QC OFP...\n"
+              echo "Trying to Decrypt QC OFP...\n"
               python3 ./oppo_decrypt/ofp_mtk_decrypt.py "$OFP_FILE" out 2>/dev/null
-
           elif [ $dtype == MTK ]
           then
-              printf "Trying to Decrypt MTK OFP...\n"
+              echo "Trying to Decrypt MTK OFP...\n"
               python3 ./oppo_decrypt/ofp_mtk_decrypt.py "$OFP_FILE" out 2>/dev/null
-
           else
-              printf "Specify your Device Type...\n"
-              printf "Cancelling Build\n"
+              echo "Error: Invalid device type provided."
+              exit 1
           fi
-
       - name: Combine super images
         shell: bash
         run: |
           simg=$SIMG
           if [ $simg == YES ]
           then
-            mkdir -p super
-            cd out
-            curl -s https://gist.githubusercontent.com/noobyysauraj/50bea76ade411df498e108b045674f1d/raw/merge.sh -o merge.sh
-            bash merge.sh $REGION
-            mv *super*img ../super
-            mv ../super/super.img .
-            cd ..
+              mkdir -p super
+              cd out
+              curl -s https://gist.githubusercontent.com/noobyysauraj/50bea76ade411df498e108b045674f1d/raw/merge.sh -o merge.sh
+              bash merge.sh $REGION
+              mv *super*img ../super
+              mv ../super/super.img .
+              cd ..
           elif [ $simg == NO ]
           then
               echo "Not merging images"
           fi
-
       - name: Compress Decrypted Zip
         shell: bash
         run: |
-          cd out
-          zip -r9 Decrypted_"${FILENAME}".zip *
-          cd ..
+          cd out && zip -r9 Decrypted_"${FILENAME}".zip * && cd ..
           simg=$SIMG
           if [ $simg == YES ]
           then
@@ -140,7 +123,7 @@ jobs:
           elif [ $simg == NO ]
           then
               echo "Not zipping superimages"
-          fi         
+          fi
     
       - name: Upload Decrypted Zip
         shell: bash
@@ -159,9 +142,10 @@ jobs:
           elif [ $simg == NO ]
           then
               echo "Not Uploading superimages"
-          fi         
-          
-      - name: DOWNLOAD LINK
+          fi 
+
+      - name: Download link for the prepared ZIP file
         run: |
-          echo -e "zip LINK: https://drive.sauraj.cf/DECRYPTED_OFPS/decrypted_ofp/${FILENAME}_decrypt"
-          echo "Edited By Sauraj"
+          # The download link should be present below ;)
+          echo -e "Zip file download: https://drive.sauraj.cf/DECRYPTED_OFPS/decrypted_ofp/${FILENAME}_decrypt"
+          echo "Edited By Sauraj & Pratham ;)"
