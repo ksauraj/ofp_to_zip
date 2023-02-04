@@ -1,4 +1,4 @@
-name: OFP Decrypter by Area69Labs
+name: Decrypt OFP
 
 on:
   workflow_dispatch:
@@ -124,5 +124,6 @@ jobs:
 
       - name: Download link for the prepared ZIP file
         run: |
+          # The download link should be present below ;)
           echo -e "Zip file download: https://drive.sauraj.cf/DECRYPTED_OFPS/decrypted_ofp/${FILENAME}_decrypt"
           echo "Edited By Sauraj & Pratham ;)"
