@@ -4,21 +4,21 @@ on:
   workflow_dispatch:
     inputs:
       ofp_link:
-        description: "OFP Firmaware Link"
+        description: "OFP Firmware Link"
         required: true
       filename:
         description: "The filename You want in output (make unique)"
         required: true
       devicetype:
-        description: "Specify Your Device type. { For Qualcomm (QC) FOR MEDIATEK (MTK) }"
+        description: "Specify Your Device type. { For Qualcomm (QC) FOR MediaTek (MTK) }"
         required: false
         default: "MTK"
       simage:
-        description: "Do you want to merege super images, if yes then type YES otherwise NO"
+        description: "Do you want to merge super images, if yes then type YES otherwise NO"
         required: false
         default: "YES"
       region:
-        description: "Specify a region for merging super iamges. Like <IN> for India."
+        description: "Specify a region for merging super images. Like <IN> for India."
         required: false
         default: "IN"
       bigfile:
@@ -52,53 +52,43 @@ jobs:
           sudo apt-fast update -qqy
           sudo apt-fast install -qqy coreutils p7zip-full p7zip-rar python3 python3-pip rclone simg2img
           aria2c -c -s16 -x16 "$OFP_LINK" 2>/dev/null || {
-            echo "Error: The provided URL is invalid." && exit 1
+              echo "Error: The provided URL is invalid." && exit 1
           }
           file_extension=${OFP_LINK##*.}
           if [ "$file_extension" != "ofp" ]; then
-            7z e *."${file_extension}" -y && rm *."${file_extension}"
-            if [ ! -f *.ofp ]; then
-              mv $(find . -name "*.ofp") .
-            fi
+              7z e *."${file_extension}" -y && rm *."${file_extension}"
+              if [ ! -f *.ofp ]; then
+                  mv $(find . -name "*.ofp") .
+              fi
           fi
           find . -type f ! -name "*.ofp" -delete
           OFPFILE=$(basename *.ofp)
           OFPNAME=${OFPFILE#.ofp}
-          echo "OFP_FILE=${OFPFILE}" >> ${GITHUB_ENV}
-          echo "OFP_NAME=${OFPNAME}" >> ${GITHUB_ENV}
+          echo "OFP_FILE=${OFPFILE}" >>${GITHUB_ENV}
+          echo "OFP_NAME=${OFPNAME}" >>${GITHUB_ENV}
 
       - name: Decrypting the OFP firmware
         shell: bash
         run: |
-          sudo apt-fast update -qqy
-          sudo apt-fast -y install python3-testresources
-          sudo apt-fast install -qqy openssl rsync sshpass rclone
-          sudo pip3 install --upgrade pip wheel setuptools
-          sudo pip install pycryptodome
-          sudo apt install simg2img
-          git clone https://github.com/bkerler/oppo_decrypt.git --depth=1
-          cd oppo_decrypt
-          pip3 install -r requirements.txt
-          cd ..
+          git clone https://github.com/bkerler/oppo_decrypt.git && cd oppo_decrypt
+          pip3 install -r requirements.txt && cd ..
           dtype=$DTYPE
-          if [ $dtype == QC ]
-          then
+          if [ $dtype == QC ]; then
               echo "Trying to Decrypt QC OFP...\n"
               python3 ./oppo_decrypt/ofp_mtk_decrypt.py "$OFP_FILE" out 2>/dev/null
-          elif [ $dtype == MTK ]
-          then
+          elif [ $dtype == MTK ]; then
               echo "Trying to Decrypt MTK OFP...\n"
               python3 ./oppo_decrypt/ofp_mtk_decrypt.py "$OFP_FILE" out 2>/dev/null
           else
               echo "Error: Invalid device type provided."
               exit 1
           fi
+
       - name: Combine super images
         shell: bash
         run: |
           simg=$SIMG
-          if [ $simg == YES ]
-          then
+          if [ $simg == YES ]; then
               mkdir -p super
               cd out
               curl -s https://gist.githubusercontent.com/noobyysauraj/50bea76ade411df498e108b045674f1d/raw/merge.sh -o merge.sh
@@ -106,43 +96,38 @@ jobs:
               mv *super*img ../super
               mv ../super/super.img .
               cd ..
-          elif [ $simg == NO ]
-          then
+          else
               echo "Not merging images"
           fi
+
       - name: Compress Decrypted Zip
         shell: bash
         run: |
-          cd out && zip -r9 Decrypted_"${FILENAME}".zip * && cd ..
+          cd out && 7z a -mx1 Decrypted_"${FILENAME}".7z * && cd ..
           simg=$SIMG
-          if [ $simg == YES ]
-          then
+          if [ $simg == YES ]; then
               cd super
-              zip -r superimages.zip *
-              cd ..            
-          elif [ $simg == NO ]
-          then
+              7z a -mx1 superimages.7z *
+              cd ..
+          else
               echo "Not zipping superimages"
           fi
-    
+
       - name: Upload Decrypted Zip
         shell: bash
         run: |
-          d_file=$(find -iname 'Decrypted_*.zip')
-          s_file=$(find -iname 'superimages.zip')
+          d_file=$(find -iname 'Decrypted_*.7z')
+          s_file=$(find -iname 'superimages.7z')
           wget https://gist.githubusercontent.com/noobyysauraj/8a0a66cc3fd3f5a513a4eee3f5625b38/raw/rclone.conf
           mkdir $HOME/.config/rclone/
           mv rclone.conf $HOME/.config/rclone/
           rclone -P copy "${d_file}" oned:/MY_BOMT_STUFFS/DECRYPTED_OFPS/decrypted_ofp/"${FILENAME}"_decrypt
           simg=$SIMG
-          if [ $simg == YES ]
-          then
+          if [ $simg == YES ]; then
               rclone -P copy "${s_file}" oned:/MY_BOMT_STUFFS/DECRYPTED_OFPS/decrypted_ofp/"${FILENAME}"_decrypt
-              
-          elif [ $simg == NO ]
-          then
+          else
               echo "Not Uploading superimages"
-          fi 
+          fi
 
       - name: Download link for the prepared ZIP file
         run: |
