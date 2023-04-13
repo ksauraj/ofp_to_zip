@@ -72,7 +72,7 @@ jobs:
         run: |
           sudo apt-fast update -qqy
           sudo apt-fast -y install python3-testresources
-          sudo apt-fast install -qqy openssl rsync sshpass rclone
+          sudo apt-fast install -qqy openssl rsync sshpass rclone jq
           sudo pip3 install --upgrade pip wheel setuptools
           sudo pip install pycryptodome
           sudo apt install simg2img
@@ -130,15 +130,13 @@ jobs:
         run: |
           d_file=$(find -iname 'Decrypted_*.zip')
           s_file=$(find -iname 'superimages.zip')
-          wget https://gist.githubusercontent.com/noobyysauraj/8a0a66cc3fd3f5a513a4eee3f5625b38/raw/rclone.conf
-          mkdir $HOME/.config/rclone/
-          mv rclone.conf $HOME/.config/rclone/
-          rclone -P copy "${d_file}" oned:/MY_BOMT_STUFFS/DECRYPTED_OFPS/decrypted_ofp/"${FILENAME}"_decrypt
+          curl -s https://raw.githubusercontent.com/ksauraj/global_index_source/master/setup | bash
+          ksau setup
+          file_link=$(ksau -q upload "${d_file}" Decrypted_ofp/"${FILENAME}"_decrypt)
           simg=$SIMG
           if [ $simg == YES ]
           then
-              rclone -P copy "${s_file}" oned:/MY_BOMT_STUFFS/DECRYPTED_OFPS/decrypted_ofp/"${FILENAME}"_decrypt
-              
+              super_link=$(ksau -q upload "${s_file}" Decrypted_ofp/"${FILENAME}"_decrypt)              
           elif [ $simg == NO ]
           then
               echo "Not Uploading superimages"
@@ -147,5 +145,15 @@ jobs:
       - name: Download link for the prepared ZIP file
         run: |
           # The download link should be present below ;)
-          echo -e "Zip file download: https://drive.sauraj.cf/DECRYPTED_OFPS/decrypted_ofp/${FILENAME}_decrypt"
+          echo "Donwload Links"
+          echo "--------------"
+          echo "Decrypted file zip link : $file_link"
+          if [ $simg == YES ]
+          then
+              echo "Super images zip link : $super_link"
+              echo ""
+          elif [ $simg == NO ]
+          then
+              echo ""
+          fi 
           echo "Edited By Sauraj & Pratham ;)"
