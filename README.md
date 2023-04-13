@@ -24,5 +24,5 @@ Please use GitHub Actions responsibly on this repo. Abuse may result in access l
 ## Credits
 Thanks [***bkerler***](https://github.com/bkerler) for his OFP decryptor script   
 Initial Script made by [***Aryan Sinha (techyminati)***](https://github.com/techyminati) 
-Edited and Maintained by ***Sauraj(@ksauraj)***(https://github.com/ksauraj) and ***Pratham(@PrathamWasTaken)***(https://github.com/PrathamWasTaken)
+Edited and Maintained by [***Sauraj(@ksauraj)***](https://github.com/ksauraj) and [***Pratham(@PrathamWasTaken)***](https://github.com/PrathamWasTaken)
 Enjoy Decrypting OFP Online ;)   
