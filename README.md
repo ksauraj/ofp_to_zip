@@ -18,13 +18,11 @@ An Online OFP Decryptor written in Bash and made possible by Github's Workflow &
   - `BIGFILE : Set this to YES , if your file size is more than 8GB ( setting to yes will take more time )`
 - [x] Reload page and let the magic Happen.   
 
+## Abuse Alert
+Please use GitHub Actions responsibly on this repo. Abuse may result in access limitations or suspension. Thank you for your cooperation.
+
 ## Credits
-Script made by [***Aryan Sinha (techyminati)***](https://github.com/techyminati)   
 Thanks [***bkerler***](https://github.com/bkerler) for his OFP decryptor script   
-
+Initial Script made by [***Aryan Sinha (techyminati)***](https://github.com/techyminati) 
+Edited and Maintained by ***Sauraj(@ksauraj)***(https://github.com/ksauraj) and ***Pratham(@PrathamWasTaken)***(https://github.com/PrathamWasTaken)
 Enjoy Decrypting OFP Online ;)   
-
-©Area69Lab   
-
-Edited by ***Sauraj(@ksauraj)***   
-Edited by ***Pratham(@PrathamWasTaken)***
