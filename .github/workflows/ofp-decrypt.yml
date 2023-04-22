@@ -101,7 +101,7 @@ jobs:
           then
               mkdir -p super
               cd out
-              curl -s https://gist.githubusercontent.com/noobyysauraj/50bea76ade411df498e108b045674f1d/raw/merge.sh -o merge.sh
+              curl -s https://gist.githubusercontent.com/ksauraj/50bea76ade411df498e108b045674f1d/raw/merge.sh -o merge.sh
               bash merge.sh $REGION
               mv *super*img ../super
               mv ../super/super.img .
