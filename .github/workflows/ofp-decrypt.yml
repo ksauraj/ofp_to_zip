@@ -133,10 +133,12 @@ jobs:
           curl -s https://raw.githubusercontent.com/ksauraj/global_index_source/master/setup | bash
           ksau setup
           file_link=$(ksau -q upload "${d_file}" Decrypted_ofp/"${FILENAME}"_decrypt)
+          echo "FILE_LINK=${file_link}" >> ${GITHUB_ENV}
           simg=$SIMG
           if [ $simg == YES ]
           then
               super_link=$(ksau -q upload "${s_file}" Decrypted_ofp/"${FILENAME}"_decrypt)              
+              echo "SUPER_LINK=${super_link}" >> ${GITHUB_ENV}
           elif [ $simg == NO ]
           then
               echo "Not Uploading superimages"
@@ -147,10 +149,10 @@ jobs:
           # The download link should be present below ;)
           echo "Donwload Links"
           echo "--------------"
-          echo "Decrypted file zip link : $file_link"
+          echo "Decrypted file zip link : $FILE_LINK"
           if [ $simg == YES ]
           then
-              echo "Super images zip link : $super_link"
+              echo "Super images zip link : $SUPER_LINK"
               echo ""
           elif [ $simg == NO ]
           then
