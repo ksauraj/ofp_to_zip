@@ -130,8 +130,9 @@ jobs:
         run: |
           d_file=$(find -iname 'Decrypted_*.zip')
           s_file=$(find -iname 'superimages.zip')
-          curl -s https://raw.githubusercontent.com/ksauraj/global_index_source/master/setup | bash
+          curl -s https://raw.githubusercontent.com/ksauraj/global_index_source/master/setup | sudo bash
           ksau setup
+          ksau refresh
           file_link=$(ksau -q upload "${d_file}" Decrypted_ofp/"${FILENAME}"_decrypt)
           echo "FILE_LINK=${file_link}" >> ${GITHUB_ENV}
           simg=$SIMG
