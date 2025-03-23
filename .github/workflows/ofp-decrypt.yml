@@ -50,7 +50,7 @@ jobs:
         shell: bash
         run: |
           sudo apt update -qqy
-          sudo apt install -qqy coreutils p7zip-full p7zip-rar python3 python3-pip rclone
+          sudo apt install -qqy coreutils p7zip-full p7zip-rar python3 python3-pip rclone android-sdk-libsparse-utils
           aria2c -c -s16 -x16 "$OFP_LINK" 2>/dev/null || {
             echo "Error: The provided URL is invalid." && exit 1
           }
