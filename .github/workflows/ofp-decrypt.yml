@@ -125,38 +125,40 @@ jobs:
               echo "Not zipping superimages"
           fi
     
-      - name: Upload Decrypted Zip
+      - name: Upload Decrypted Zip & Get Download link
         shell: bash
         run: |
           d_file=$(find -iname 'Decrypted_*.zip')
           s_file=$(find -iname 'superimages.zip')
-          curl -sSL https://raw.githubusercontent.com/global-index-source/ksau-go/master/setup.sh | sudo bash
-          ksau-go setup
+          curl -sSL https://raw.githubusercontent.com/global-index-source/ksau-go/master/setup.sh | bash
+          source ~/.bashrc
           ksau-go refresh
-          file_link=$(ksau-go upload -f "${d_file}" -r Decrypted_ofp -n "${FILENAME}"_decrypt --remote-config saurajcf)
-          echo "FILE_LINK=${file_link}" >> ${GITHUB_ENV}
+          file_link=$(ksau-go upload -f "${d_file}" -r Decrypted_ofp/"${FILENAME}"_decrypt --remote-config saurajcf)
+          echo "${file_link}"
+          # echo "FILE_LINK=${file_link}" >> ${GITHUB_ENV}
           simg=$SIMG
           if [ $simg == YES ]
           then
-              super_link=$(ksau-go upload -f "${s_file}" -r Decrypted_ofp -n "${FILENAME}"_decrypt --remote-config saurajcf)              
-              echo "SUPER_LINK=${super_link}" >> ${GITHUB_ENV}
+              super_link=$(ksau-go upload -f "${s_file}" -r Decrypted_ofp/"${FILENAME}"_decrypt --remote-config saurajcf)
+              echo "${super_link}"            
+              # echo "SUPER_LINK=${super_link}" >> ${GITHUB_ENV}
           elif [ $simg == NO ]
           then
               echo "Not Uploading superimages"
           fi 
 
-      - name: Download link for the prepared ZIP file
-        run: |
-          # The download link should be present below ;)
-          echo "Donwload Links"
-          echo "--------------"
-          echo "Decrypted file zip link : $FILE_LINK"
-          if [ $simg == YES ]
-          then
-              echo "Super images zip link : $SUPER_LINK"
-              echo ""
-          elif [ $simg == NO ]
-          then
-              echo ""
-          fi 
-          echo "Edited By Sauraj & Pratham ;)"
+      # - name: Download link for the prepared ZIP file
+      #   run: |
+      #     # The download link should be present below ;)
+      #     echo "Donwload Links"
+      #     echo "--------------"
+      #     echo "Decrypted file zip link : $FILE_LINK"
+      #     if [ $simg == YES ]
+      #     then
+      #         echo "Super images zip link : $SUPER_LINK"
+      #         echo ""
+      #     elif [ $simg == NO ]
+      #     then
+      #         echo ""
+      #     fi 
+      #     echo "Edited By Sauraj & Pratham ;)"
