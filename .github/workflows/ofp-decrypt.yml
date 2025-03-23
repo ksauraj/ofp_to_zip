@@ -49,8 +49,8 @@ jobs:
       - name: Downloading the OFP firmware
         shell: bash
         run: |
-          sudo apt-fast update -qqy
-          sudo apt-fast install -qqy coreutils p7zip-full p7zip-rar python3 python3-pip rclone simg2img
+          sudo apt update -qqy
+          sudo apt install -qqy coreutils p7zip-full p7zip-rar python3 python3-pip rclone
           aria2c -c -s16 -x16 "$OFP_LINK" 2>/dev/null || {
             echo "Error: The provided URL is invalid." && exit 1
           }
@@ -70,12 +70,11 @@ jobs:
       - name: Decrypting the OFP firmware
         shell: bash
         run: |
-          sudo apt-fast update -qqy
-          sudo apt-fast -y install python3-testresources
-          sudo apt-fast install -qqy openssl rsync sshpass rclone jq
+          sudo apt update -qqy
+          sudo apt -y install python3-testresources
+          sudo apt install -qqy openssl rsync sshpass rclone jq
           sudo pip3 install --upgrade pip wheel setuptools
           sudo pip install pycryptodome
-          sudo apt install simg2img
           git clone https://github.com/bkerler/oppo_decrypt.git --depth=1
           cd oppo_decrypt
           pip3 install -r requirements.txt
