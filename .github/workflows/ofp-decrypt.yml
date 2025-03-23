@@ -73,7 +73,7 @@ jobs:
           sudo apt update -qqy
           sudo apt -y install python3-testresources
           sudo apt install -qqy openssl rsync sshpass rclone jq
-          sudo pip3 install --upgrade pip wheel setuptools
+          sudo pip3 install --upgrade setuptools
           sudo pip install pycryptodome
           git clone https://github.com/bkerler/oppo_decrypt.git --depth=1
           cd oppo_decrypt
@@ -92,6 +92,7 @@ jobs:
               echo "Error: Invalid device type provided."
               exit 1
           fi
+          
       - name: Combine super images
         shell: bash
         run: |
